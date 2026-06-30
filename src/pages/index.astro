@@ -1,11 +1,208 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+// src/pages/index.astro
+import { getCollection } from 'astro:content'; // Astro가 제공하는 내장 함수. 내 프로젝트 안의 마크다운 글 파일들을 한번에 모아 옴.
+import type { CollectionEntry } from 'astro:content'; // 타입스크립트 타입 불러오기.
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// 블로그 폴더 안의 모든 글을 가져와서 allPosts라는 변수에 담기.
+const allPosts = await getCollection('blog');
+
+// a와 b 변수가 블로그 컬렉션 항목(CollectionEntry<'blog'>)임을 명시.
+const recentPosts = allPosts
+	// 마크다운 맨 위에 적어둔 날짜(pubDate)를 기준으로 내림차순 정렬 후, 최근 3개의 글만 가져오기
+	.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>나의 학습 대시보드 포트폴리오</title>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+	</head>
+
+	<body class="bg-[#fafafa] text-gray-800 antialiased min-h-screen flex flex-col">
+
+		<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-100 h-14 flex items-center px-4">
+			<div class="flex items-center">
+				<button id="toggle-sidebar-btn" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+					<svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+						<path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0-5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"></path>
+					</svg>
+				</button>
+				<span class="sidebar-text hidden opacity-0 self-center text-md font-bold sm:text-xl whitespace-nowrap ml-3">📂 내 메뉴</span>
+			</div>
+		</nav>
+
+		<div class="flex flex-1 pt-14 h-[calc(100vh-3.5rem)] overflow-hidden">
+			
+			<aside id="main-sidebar" class="w-16 h-full bg-white border-r border-gray-100 overflow-y-auto overflow-x-hidden flex-shrink-0 transition-all duration-300">
+				<div class="h-full px-2 py-4 flex flex-col justify-between">
+					<div>
+						<div id="sidebar-profile" class="hidden flex items-center gap-3 px-2 mb-6 transition-opacity duration-200">
+							<div class="w-10 h-10 min-w-[40px] rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-700">서은</div>
+							<div class="sidebar-text hidden opacity-0 whitespace-nowrap">
+								<h2 class="text-sm font-bold text-gray-700">내 메뉴</h2>
+								<span class="text-xs text-gray-400">포트폴리오 블로그</span>
+							</div>
+						</div>
+						
+						<ul class="space-y-2 font-medium text-sm">
+							<li>
+								<a href="#" class="flex items-center justify-center p-2.5 text-gray-900 rounded-xl bg-amber-50 text-amber-600 font-semibold group sidebar-link" title="대시보드">
+									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📊</span> 
+									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">대시보드</span>
+								</a>
+							</li>
+							<li>
+								<a href="/blog" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="공부 진행상황">
+									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📖</span> 
+									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">공부 진행상황</span>
+								</a>
+							</li>
+							<li>
+								<a href="#" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="학습 일정">
+									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📅</span> 
+									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">학습 일정</span>
+								</a>
+							</li>
+							<li>
+								<a href="#" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="나의 오답노트">
+									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📝</span> 
+									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">나의 오답노트</span>
+								</a>
+							</li>
+							<li>
+								<a href="#" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="도전과제">
+									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">🏆</span> 
+									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">도전과제</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+					
+					<div class="text-[10px] text-gray-400 sidebar-text hidden opacity-0 whitespace-nowrap text-center">
+						© 2026
+					</div>
+				</div>
+			</aside>
+
+			<main class="flex-1 p-6 h-full overflow-y-auto">
+				<div class="max-w-5xl mx-auto px-2">
+					
+					<div class="flex justify-between items-center gap-4 mb-6">
+						<h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">📊 대시보드 홈</h1>
+						<div class="relative w-72">
+							<input type="text" class="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 p-2.5 pl-4" placeholder="검색">
+						</div>
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+							<div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
+								<span class="flex items-center gap-1">🔥 연속 학습일</span>
+							</div>
+							<div class="my-3">
+								<span class="text-3xl font-extrabold text-gray-800">1</span>
+								<span class="text-sm text-gray-500 font-medium ml-1">일 연속</span>
+							</div>
+							<div class="flex gap-1.5 mt-4">
+								{['수', '목', '금', '토', '일', '월', '화'].map((day, idx) => (
+									<div class={`flex-1 text-center py-1.5 rounded-lg text-xs font-bold ${idx === 5 ? 'bg-amber-500 text-white' : 'bg-gray-50 text-gray-400'}`}>
+										{day}
+									</div>
+								))}
+							</div>
+						</div>
+
+						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+							<div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
+								<span>🎯 시험 D-day</span>
+							</div>
+							<div class="my-3">
+								<span class="text-3xl font-extrabold text-red-500">D-19</span>
+							</div>
+							<p class="text-xs text-gray-400 font-medium mt-5">7월 19일(일) 2회 실기</p>
+						</div>
+
+						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+							<div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
+								<span>📄 내 포트폴리오 문서</span>
+							</div>
+							<div class="text-center py-2">
+								<span class="text-sm font-semibold text-emerald-600 flex items-center justify-center gap-1">
+									✅ 레이아웃 가동 중
+								</span>
+							</div>
+							<div></div>
+						</div>
+					</div>
+
+					<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
+						<h3 class="text-sm font-bold text-gray-700 mb-4">🚀 오늘의 학습 계획</h3>
+						<div class="space-y-3">
+							<div class="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-orange-50/50 text-xs font-semibold">
+								<span class="bg-orange-500 text-white px-2 py-0.5 rounded-md">이론 4주 완성</span>
+								<span class="text-orange-600 ml-2">⚪ 파일구조</span>
+								<span class="text-orange-600">⚪ 메모리 페이지 교체</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+							<h4 class="text-xs font-bold text-gray-400 mb-3">📝 최근 업로드 기술 필기</h4>
+							{recentPosts.length === 0 ? (
+								<p class="text-xs text-gray-400 text-center py-4">아직 작성한 필기가 없습니다.</p>
+							) : (
+								<ul class="space-y-2">
+									{recentPosts.map((post: any) => (
+										<li class="text-xs flex justify-between items-center p-2 rounded-lg hover:bg-gray-50">
+											<a href={`/blog/${post.id}/`} class="text-gray-700 font-semibold hover:text-amber-500 truncate max-w-[70%]">
+												{post.data.title}
+											</a>
+											<span class="text-[10px] text-gray-400">{post.data.pubDate.toLocaleDateString('ko-KR')}</span>
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+					</div>
+
+				</div>
+			</main>
+		</div>
+
+		<script>
+			const toggleBtn = document.getElementById('toggle-sidebar-btn');
+			const sidebar = document.getElementById('main-sidebar');
+			const profile = document.getElementById('sidebar-profile');
+			const texts = document.querySelectorAll('.sidebar-text');
+			const links = document.querySelectorAll('.sidebar-link');
+
+			toggleBtn?.addEventListener('click', () => {
+				// 1. 가로폭 토글
+				sidebar?.classList.toggle('w-16');
+				sidebar?.classList.toggle('w-64');
+
+				// 2. 프로필 및 글자들 숨김 토글
+				profile?.classList.toggle('hidden');
+				texts.forEach(text => {
+					text.classList.toggle('hidden');
+					setTimeout(() => {
+						text.classList.toggle('opacity-0');
+					}, 50);
+				});
+
+				// 3. 미니 일땐 정확히 햄버거 버튼 정중앙 밑(justify-center), 펼쳐지면 텍스트 정렬을 위해 왼쪽(justify-start) 정렬
+				links.forEach(link => {
+					link.classList.toggle('justify-center');
+					link.classList.toggle('justify-start');
+				});
+			});
+		</script>
+	</body>
+
+	
+</html>
