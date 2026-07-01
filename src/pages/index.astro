@@ -1,208 +1,268 @@
 ---
 // src/pages/index.astro
-import { getCollection } from 'astro:content'; // Astro가 제공하는 내장 함수. 내 프로젝트 안의 마크다운 글 파일들을 한번에 모아 옴.
-import type { CollectionEntry } from 'astro:content'; // 타입스크립트 타입 불러오기.
+import { getCollection } from 'astro:content';
 
-// 블로그 폴더 안의 모든 글을 가져와서 allPosts라는 변수에 담기.
 const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-// a와 b 변수가 블로그 컬렉션 항목(CollectionEntry<'blog'>)임을 명시.
-const recentPosts = allPosts
-	// 마크다운 맨 위에 적어둔 날짜(pubDate)를 기준으로 내림차순 정렬 후, 최근 3개의 글만 가져오기
-	.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-	.slice(0, 3);
+const introPosts = sortedPosts.filter((post: any) => post.data.tags?.includes('소개')).slice(0, 3);
+const notePosts = sortedPosts.filter((post: any) => post.data.tags?.includes('필기')).slice(0, 3);
+const wrongPosts = sortedPosts.filter((post: any) => post.data.tags?.includes('오답')).slice(0, 3);
+
+const todayPlans = [
+    { category: '이론 4주 완성', chapter: '파일구조', done: true },
+    { category: '이론 4주 완성', chapter: '메모리 페이지 교체', done: false },
+    { category: '코딩 6주 완성', chapter: '값에 의한 호출', done: true },
+    { category: '코딩 6주 완성', chapter: '구조체', done: false },
+];
+const skills = [
+    { name: 'Python', exp: 75, color: 'bg-blue-500' },
+    { name: 'Java', exp: 40, color: 'bg-orange-500' },
+    { name: 'JavaScript', exp: 90, color: 'bg-yellow-400' },
+    { name: 'HTML', exp: 95, color: 'bg-red-500' },
+    { name: 'DB', exp: 60, color: 'bg-purple-500' },
+    { name: 'Network', exp: 50, color: 'bg-emerald-500' },
+];
 ---
 
 <!doctype html>
 <html lang="ko">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>나의 학습 대시보드 포트폴리오</title>
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
-	</head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>나의 학습 대시보드</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    </head>
+    <body class="bg-[#fafafa] text-gray-800 antialiased min-h-screen flex flex-col">
 
-	<body class="bg-[#fafafa] text-gray-800 antialiased min-h-screen flex flex-col">
+        <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-100 h-16 flex items-center justify-between px-6">
+            <div class="flex items-center gap-3">
+                <button id="toggle-sidebar-btn" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none">
+                    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0-5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="relative w-64 flex items-center">
+                <input type="text" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-xl focus:ring-amber-500 focus:border-amber-500 p-2 pl-3" placeholder="검색">
+                <kbd class="absolute right-2.5 bg-white border border-gray-100 text-[10px] text-gray-400 px-1.5 py-0.5 rounded-md shadow-sm">⌘ K</kbd>
+            </div>
+        </nav>
 
-		<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-100 h-14 flex items-center px-4">
-			<div class="flex items-center">
-				<button id="toggle-sidebar-btn" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-					<svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-						<path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0-5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"></path>
-					</svg>
-				</button>
-				<span class="sidebar-text hidden opacity-0 self-center text-md font-bold sm:text-xl whitespace-nowrap ml-3">📂 내 메뉴</span>
-			</div>
-		</nav>
-
-		<div class="flex flex-1 pt-14 h-[calc(100vh-3.5rem)] overflow-hidden">
-			
-			<aside id="main-sidebar" class="w-16 h-full bg-white border-r border-gray-100 overflow-y-auto overflow-x-hidden flex-shrink-0 transition-all duration-300">
-				<div class="h-full px-2 py-4 flex flex-col justify-between">
-					<div>
-						<div id="sidebar-profile" class="hidden flex items-center gap-3 px-2 mb-6 transition-opacity duration-200">
-							<div class="w-10 h-10 min-w-[40px] rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-700">서은</div>
-							<div class="sidebar-text hidden opacity-0 whitespace-nowrap">
-								<h2 class="text-sm font-bold text-gray-700">내 메뉴</h2>
-								<span class="text-xs text-gray-400">포트폴리오 블로그</span>
-							</div>
-						</div>
-						
-						<ul class="space-y-2 font-medium text-sm">
-							<li>
-								<a href="#" class="flex items-center justify-center p-2.5 text-gray-900 rounded-xl bg-amber-50 text-amber-600 font-semibold group sidebar-link" title="대시보드">
-									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📊</span> 
-									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">대시보드</span>
-								</a>
-							</li>
-							<li>
-								<a href="/blog" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="공부 진행상황">
-									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📖</span> 
-									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">공부 진행상황</span>
-								</a>
-							</li>
-							<li>
-								<a href="#" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="학습 일정">
-									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📅</span> 
-									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">학습 일정</span>
-								</a>
-							</li>
-							<li>
-								<a href="#" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="나의 오답노트">
-									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">📝</span> 
-									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">나의 오답노트</span>
-								</a>
-							</li>
-							<li>
-								<a href="#" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 group sidebar-link" title="도전과제">
-									<span class="text-xl min-w-[32px] h-8 flex items-center justify-center">🏆</span> 
-									<span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">도전과제</span>
-								</a>
-							</li>
-						</ul>
-					</div>
-					
-					<div class="text-[10px] text-gray-400 sidebar-text hidden opacity-0 whitespace-nowrap text-center">
-						© 2026
-					</div>
+        <div class="flex flex-1 pt-16 h-[calc(100vh-4rem)] overflow-hidden">
+            
+            <aside id="main-sidebar" class="w-16 h-full bg-white border-r border-gray-100 overflow-y-auto overflow-x-hidden flex-shrink-0 transition-all duration-300">
+                <div class="h-full px-2 py-4 flex flex-col justify-between">
+                    <div>
+                        <div id="sidebar-profile" class="hidden flex items-center gap-3 px-2 mb-6 transition-opacity duration-200">
+                            <div class="w-9 h-9 min-w-[36px] rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-700 text-sm">메뉴</div>
+                        </div>
+                        
+                        <ul class="space-y-2 font-medium text-xs">
+                            <li>
+                                <a href="/" class="flex items-center justify-center p-2.5 text-amber-600 rounded-xl bg-amber-50/60 font-semibold sidebar-link" title="소개">
+                                    <span class="text-base min-w-[28px] text-center">👤</span> 
+                                    <span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">소개</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/todo" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 sidebar-link" title="학습 일정">
+                                    <span class="text-base min-w-[28px] text-center">📅</span> 
+                                    <span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">학습 일정</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/blog" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 sidebar-link" title="필기">
+                                    <span class="text-base min-w-[28px] text-center">📝</span> 
+                                    <span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">필기</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/wrong-notes" class="flex items-center justify-center p-2.5 text-gray-600 rounded-xl hover:bg-gray-50 sidebar-link" title="오답노트">
+                                    <span class="text-base min-w-[28px] text-center">📕</span> 
+                                    <span class="sidebar-text hidden ml-2 whitespace-nowrap opacity-0 transition-all duration-200">오답노트</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-[9px] text-gray-400 sidebar-text hidden opacity-0 whitespace-nowrap text-center">© 2026</div>
 				</div>
-			</aside>
+            </aside>
 
-			<main class="flex-1 p-6 h-full overflow-y-auto">
-				<div class="max-w-5xl mx-auto px-2">
-					
-					<div class="flex justify-between items-center gap-4 mb-6">
-						<h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">📊 대시보드 홈</h1>
-						<div class="relative w-72">
-							<input type="text" class="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 p-2.5 pl-4" placeholder="검색">
-						</div>
-					</div>
+            <main class="flex-1 p-6 h-full overflow-y-auto">
+                <div class="max-w-6xl mx-auto space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-xs font-bold text-gray-400 mb-3">👤 소개</div>
+                            {introPosts.length === 0 ? (
+                                <p class="text-xs text-gray-400 py-2">등록된 소개 글이 없습니다.</p>
+                            ) : (
+                                <ul class="space-y-2 flex-1">
+                                    {introPosts.map((post: any) => (
+                                        <li class="text-xs flex justify-between items-center">
+                                            <a href={`/blog/${post.id}/`} class="text-gray-700 font-semibold hover:text-amber-500 truncate max-w-[70%]">{post.data.title}</a>
+                                            <span class="text-[10px] text-gray-400">{post.data.pubDate.toLocaleDateString('ko-KR')}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
 
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-							<div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
-								<span class="flex items-center gap-1">🔥 연속 학습일</span>
-							</div>
-							<div class="my-3">
-								<span class="text-3xl font-extrabold text-gray-800">1</span>
-								<span class="text-sm text-gray-500 font-medium ml-1">일 연속</span>
-							</div>
-							<div class="flex gap-1.5 mt-4">
-								{['수', '목', '금', '토', '일', '월', '화'].map((day, idx) => (
-									<div class={`flex-1 text-center py-1.5 rounded-lg text-xs font-bold ${idx === 5 ? 'bg-amber-500 text-white' : 'bg-gray-50 text-gray-400'}`}>
-										{day}
-									</div>
-								))}
-							</div>
-						</div>
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-xs font-bold text-gray-400 mb-3">🔥 연속 학습일</div>
+                            <div class="flex flex-col items-center justify-center py-1">
+                                <div class="grid grid-flow-col grid-rows-4 gap-1 mb-2">
+                                    {Array.from({ length: 24 }).map((_, i) => (
+                                        <div class={`w-3 h-3 rounded-sm ${i % 5 === 0 ? 'bg-emerald-500' : i % 3 === 0 ? 'bg-emerald-300' : 'bg-gray-100'}`}></div>
+                                    ))}
+                                </div>
+                                <span class="text-xs text-gray-500 font-medium">GitHub 잔디 연동 대기 중</span>
+                            </div>
+                        </div>
 
-						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-							<div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
-								<span>🎯 시험 D-day</span>
-							</div>
-							<div class="my-3">
-								<span class="text-3xl font-extrabold text-red-500">D-19</span>
-							</div>
-							<p class="text-xs text-gray-400 font-medium mt-5">7월 19일(일) 2회 실기</p>
-						</div>
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-xs font-bold text-gray-400 mb-2">🎯 D-day</div>
+                            <div class="my-2">
+                                <span id="dday-display" class="text-3xl font-extrabold text-red-500">D-??</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 font-medium">"학습 일정" 메뉴의 최신 시험 기준</p>
+                        </div>
+                    </div>
 
-						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-							<div class="flex justify-between items-center text-xs text-gray-400 font-semibold mb-2">
-								<span>📄 내 포트폴리오 문서</span>
-							</div>
-							<div class="text-center py-2">
-								<span class="text-sm font-semibold text-emerald-600 flex items-center justify-center gap-1">
-									✅ 레이아웃 가동 중
-								</span>
-							</div>
-							<div></div>
-						</div>
-					</div>
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="text-xs font-bold text-gray-400 mb-4">🚀 오늘의 학습 계획</div>
+                        <div class="flex flex-col gap-3">
+                            {todayPlans.map((plan, idx) => (
+                                <div class="flex items-center justify-between p-2.5 rounded-xl bg-gray-50/80 text-xs">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-amber-500/10 text-amber-700 font-bold px-2 py-0.5 rounded-md text-[10px]">{plan.category}</span>
+                                        <span class="text-gray-700 font-medium">{plan.chapter}</span>
+                                    </div>
+                                    <button 
+                                        onclick="this.classList.toggle('bg-emerald-500'); this.classList.toggle('text-white'); this.classList.toggle('bg-white'); this.innerText = this.innerText === '미완료' ? '✓ 완료' : '미완료';"
+                                        class={`px-2.5 py-1 rounded-lg font-bold border border-gray-200 transition-colors cursor-pointer text-[11px] ${plan.done ? 'bg-emerald-500 text-white' : 'bg-white text-gray-400'}`}
+                                    >
+                                        {plan.done ? '✓ 완료' : '미완료'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-					<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
-						<h3 class="text-sm font-bold text-gray-700 mb-4">🚀 오늘의 학습 계획</h3>
-						<div class="space-y-3">
-							<div class="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-orange-50/50 text-xs font-semibold">
-								<span class="bg-orange-500 text-white px-2 py-0.5 rounded-md">이론 4주 완성</span>
-								<span class="text-orange-600 ml-2">⚪ 파일구조</span>
-								<span class="text-orange-600">⚪ 메모리 페이지 교체</span>
-							</div>
-						</div>
-					</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-xs font-bold text-gray-400 mb-3">📝 최근 필기</div>
+                            {notePosts.length === 0 ? (
+                                <p class="text-xs text-gray-400 text-center py-4">작성된 필기 글이 없습니다.</p>
+                            ) : (
+                                <ul class="space-y-2">
+                                    {notePosts.map((post: any) => (
+                                        <li class="text-xs flex justify-between items-center">
+                                            <a href={`/blog/${post.id}/`} class="text-gray-700 font-semibold hover:text-amber-500 truncate max-w-[70%]">{post.data.title}</a>
+                                            <span class="text-[10px] text-gray-400">{post.data.pubDate.toLocaleDateString('ko-KR')}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-						<div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-							<h4 class="text-xs font-bold text-gray-400 mb-3">📝 최근 업로드 기술 필기</h4>
-							{recentPosts.length === 0 ? (
-								<p class="text-xs text-gray-400 text-center py-4">아직 작성한 필기가 없습니다.</p>
-							) : (
-								<ul class="space-y-2">
-									{recentPosts.map((post: any) => (
-										<li class="text-xs flex justify-between items-center p-2 rounded-lg hover:bg-gray-50">
-											<a href={`/blog/${post.id}/`} class="text-gray-700 font-semibold hover:text-amber-500 truncate max-w-[70%]">
-												{post.data.title}
-											</a>
-											<span class="text-[10px] text-gray-400">{post.data.pubDate.toLocaleDateString('ko-KR')}</span>
-										</li>
-									))}
-								</ul>
-							)}
-						</div>
-					</div>
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-xs font-bold text-gray-400 mb-3">📕 최근 오답노트</div>
+                            {wrongPosts.length === 0 ? (
+                                <p class="text-xs text-gray-400 text-center py-4">작성된 오답노트가 없습니다.</p>
+                            ) : (
+                                <ul class="space-y-2">
+                                    {wrongPosts.map((post: any) => (
+                                        <li class="text-xs flex justify-between items-center">
+                                            <a href={`/blog/${post.id}/`} class="text-gray-700 font-semibold hover:text-amber-500 truncate max-w-[70%]">{post.data.title}</a>
+                                            <span class="text-[10px] text-gray-400">{post.data.pubDate.toLocaleDateString('ko-KR')}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
 
-				</div>
-			</main>
-		</div>
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-xs font-bold text-gray-400 mb-4">📊 전체 스킬 현황 (EXP)</div>
+                            <div class="space-y-3">
+                                {skills.map((skill) => (
+                                    <div class="text-xs">
+                                        <div class="flex justify-between text-[11px] font-bold text-gray-600 mb-1">
+                                            <span>{skill.name}</span>
+                                            <span>{skill.exp}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                            <div class={`h-full ${skill.color} transition-all duration-500`} style={`width: ${skill.exp}%`}></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                    </div>
 
-		<script>
-			const toggleBtn = document.getElementById('toggle-sidebar-btn');
-			const sidebar = document.getElementById('main-sidebar');
-			const profile = document.getElementById('sidebar-profile');
-			const texts = document.querySelectorAll('.sidebar-text');
-			const links = document.querySelectorAll('.sidebar-link');
+                </div>
+            </main>
+        </div>
 
-			toggleBtn?.addEventListener('click', () => {
-				// 1. 가로폭 토글
-				sidebar?.classList.toggle('w-16');
-				sidebar?.classList.toggle('w-64');
+        <script>
+            const toggleBtn = document.getElementById('toggle-sidebar-btn');
+            const sidebar = document.getElementById('main-sidebar');
+            const profile = document.getElementById('sidebar-profile');
+            const texts = document.querySelectorAll('.sidebar-text');
+            const links = document.querySelectorAll('.sidebar-link');
 
-				// 2. 프로필 및 글자들 숨김 토글
-				profile?.classList.toggle('hidden');
-				texts.forEach(text => {
+            toggleBtn?.addEventListener('click', () => {
+                sidebar?.classList.toggle('w-16');
+                sidebar?.classList.toggle('w-64');
+                profile?.classList.toggle('hidden');
+                
+                texts.forEach(text => {
 					text.classList.toggle('hidden');
-					setTimeout(() => {
-						text.classList.toggle('opacity-0');
-					}, 50);
-				});
+                    setTimeout(() => { text.classList.toggle('opacity-0'); }, 50);
+                });
 
-				// 3. 미니 일땐 정확히 햄버거 버튼 정중앙 밑(justify-center), 펼쳐지면 텍스트 정렬을 위해 왼쪽(justify-start) 정렬
-				links.forEach(link => {
-					link.classList.toggle('justify-center');
-					link.classList.toggle('justify-start');
-				});
-			});
-		</script>
-	</body>
+                links.forEach(link => {
+                    link.classList.toggle('justify-center');
+                    link.classList.toggle('justify-start');
+                });
+            });
 
-	
+			// 🔥 실시간 D-day 브라우저 연동 계산기 로직
+			const ddayDisplay = document.getElementById('dday-display');
+			const savedDate = localStorage.getItem('targetExamDate');
+
+			if (savedDate) {
+				const examDate = new Date(savedDate);
+				const today = new Date();
+				
+				// 시, 분, 초 시간값을 초기화하여 오직 '날짜 차이'만 순수하게 계산합니다.
+				examDate.setHours(0,0,0,0);
+				today.setHours(0,0,0,0);
+
+				const differenceInTime = examDate.getTime() - today.getTime();
+				const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+				if (ddayDisplay) {
+					if (differenceInDays > 0) {
+						ddayDisplay.innerText = `D-${differenceInDays}`;
+					} else if (differenceInDays === 0) {
+						ddayDisplay.innerText = `D-DAY 🎉`;
+						ddayDisplay.classList.remove('text-red-500');
+						ddayDisplay.classList.add('text-emerald-500');
+					} else {
+						ddayDisplay.innerText = `완료`;
+						ddayDisplay.classList.remove('text-red-500');
+						ddayDisplay.classList.add('text-gray-400');
+					}
+				}
+			} else {
+				if (ddayDisplay) ddayDisplay.innerText = "설정 필요";
+			}
+        </script>
+    </body>
 </html>
